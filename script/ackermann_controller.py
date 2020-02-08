@@ -9,7 +9,7 @@ class PLC_Ethernet:
     def __init__(self,ip,port):
         print 'plc ip',ip
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.s.connect((ip, port))
+        self.s.connect((ip, port))
 
     def force_set(self,register,set_value):
         if set_value:
