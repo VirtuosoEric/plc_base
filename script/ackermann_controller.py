@@ -26,18 +26,18 @@ class PLC_Ethernet:
 
 
 throttle = 0
-forward = True
+backward = False
 steering_angle = 0
 
 #######PLC SETTINGS######
 throttle_register = 'DM150'
-forward_register = 'MR005'
+backward_register = 'MR005'
 steering_register = 'DM160'
 plc = PLC_Ethernet('192.168.5.4',8501)
 ###### END ######
 
 def twist_to_ackermann(data):
-    global throttle,steering_angle,forward
+    global throttle,steering_angle,backward
     v = data.linear.x
     omega = data.angular.z
     if omega != 0.0 and v != 0.0:
@@ -54,20 +54,20 @@ def twist_to_ackermann(data):
 
     throttle = abs(v/max_speed)*100
     steering_angle = int(steering)
-    if v >= 0:
-        forward = True
+    if v < 0:
+        backward = True
     else:
-        forward = False
+        backward = False
 
     # print 'linear=',v
     # print 'steering',steering
 
 def plc_cmd_timerCB(event):
     # print 'throttle=',throttle
-    # print 'forward=',forward
+    # print 'backward=',backward
     # print 'steering_angle=',steering_angle
     plc.write_dm_int(throttle_register,throttle)
-    plc.force_set(forward_register,forward)
+    plc.force_set(backward_register,backward)
     plc.write_dm_int(steering_register,steering_angle)
 
   
