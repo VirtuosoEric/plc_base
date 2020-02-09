@@ -50,7 +50,7 @@ def twist_to_ackermann(data):
     else:
         steering = 0
 
-    throttle = v/max_speed*100
+    throttle = int(v/max_speed*100)
     steering_angle = int(steering)
 
     # print 'linear=',v
