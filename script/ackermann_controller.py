@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy, math
+import rospy, math,time
 import socket,threading
 from geometry_msgs.msg import Twist
 
@@ -26,18 +26,16 @@ class PLC_Ethernet:
 
 
 throttle = 0
-backward = False
 steering_angle = 0
 
 #######PLC SETTINGS######
-throttle_register = 'DM150'
-backward_register = 'MR005'
-steering_register = 'DM160'
+throttle_register = 'DM50'
+steering_register = 'DM70'
 plc = PLC_Ethernet('192.168.5.4',8501)
 ###### END ######
 
 def twist_to_ackermann(data):
-    global throttle,steering_angle,backward
+    global throttle,steering_angle
     v = data.linear.x
     omega = data.angular.z
     if omega != 0.0 and v != 0.0:
@@ -52,22 +50,17 @@ def twist_to_ackermann(data):
     else:
         steering = 0
 
-    throttle = abs(v/max_speed)*100
+    throttle = v/max_speed*100
     steering_angle = int(steering)
-    if v < 0:
-        backward = True
-    else:
-        backward = False
 
     # print 'linear=',v
     # print 'steering',steering
 
 def plc_cmd_timerCB(event):
     # print 'throttle=',throttle
-    # print 'backward=',backward
     # print 'steering_angle=',steering_angle
     plc.write_dm_int(throttle_register,throttle)
-    plc.force_set(backward_register,backward)
+    time.sleep(0.1)
     plc.write_dm_int(steering_register,steering_angle)
 
   
