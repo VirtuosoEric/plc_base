@@ -31,7 +31,7 @@ steering_angle = 0
 #######PLC SETTINGS######
 throttle_register = 'DM50'
 steering_register = 'DM70'
-plc = PLC_Ethernet('192.168.5.4',8501)
+plc = PLC_Ethernet('192.168.30.150',8501)
 ###### END ######
 
 def twist_to_ackermann(data):
@@ -57,15 +57,25 @@ def twist_to_ackermann(data):
     # print 'steering',steering
 
 def plc_cmd_timerCB(event):
-    # print 'throttle=',throttle
-    # print 'steering_angle=',steering_angle
-    plc.write_dm_int(throttle_register,throttle)
+    print 'throttle=',throttle
+    print 'steering_angle=',-steering_angle
+    # plc.write_dm_int(throttle_register,throttle)
     time.sleep(0.1)
-    plc.write_dm_int(steering_register,steering_angle)
+    plc.write_dm_int(steering_register,-steering_angle)
 
-  
+def plc_init():
+    plc.force_set('MR108',1)
+    time.sleep(0.1)
+    plc.force_set('MR101',1)
+    time.sleep(3)
+    plc.force_set('MR200',1)
+    time.sleep(10)
+    plc.force_set('MR108',0)
+    time.sleep(1)
 
 if __name__ == '__main__': 
+    plc_init()
+
     try:
         rospy.init_node('ackermann_controller')
         
